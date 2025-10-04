@@ -35,12 +35,23 @@ public class ScheduledRequestService {
         
         try {
             String response = restTemplate.getForObject(targetUrl, String.class);
-            log.info("İstek başarılı! Response: {}", 
+            log.info("✅ İstek başarılı! Response: {}", 
                     response != null && response.length() > 100 
                     ? response.substring(0, 100) + "..." 
                     : response);
+        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
+            // 404 hatası - Endpoint yok ama sunucu ulaşılabilir durumda
+            log.info("✅ Sunucuya ulaşıldı! (Endpoint bulunamadı ama sorun değil, sunucu uyanık)");
+            log.debug("404 Detay: {}", e.getMessage());
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            // Diğer 4xx hataları - Sunucu ulaşılabilir
+            log.info("✅ Sunucuya ulaşıldı! (HTTP {}: {})", e.getStatusCode(), e.getStatusText());
+        } catch (org.springframework.web.client.HttpServerErrorException e) {
+            // 5xx hataları - Sunucu ulaşılabilir ama hata veriyor
+            log.warn("⚠️ Sunucuya ulaşıldı ama sunucu hatası! (HTTP {}: {})", e.getStatusCode(), e.getStatusText());
         } catch (Exception e) {
-            log.error("İstek başarısız! Hata: {}", e.getMessage());
+            // Sunucuya hiç ulaşılamadı veya timeout
+            log.error("❌ İstek başarısız! Sunucuya ulaşılamadı: {}", e.getMessage());
         }
         
         log.info("======================================================");
