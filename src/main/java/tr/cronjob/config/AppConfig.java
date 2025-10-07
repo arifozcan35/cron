@@ -10,8 +10,8 @@ import java.time.Duration;
 @Configuration
 public class AppConfig {
 
-    // RestTemplate bean'i
-    // HTTP istekleri icin kullanilir
+    // RestTemplate bean
+    // Used for HTTP requests
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder
